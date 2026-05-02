@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EA Checklist</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="container">
+    <h1>📋 EA Checklist — เตรียมความพร้อม</h1>
+    <p class="subtitle">ตรวจสอบรายการเตรียมตัวก่อนสอบ EA</p>
+
+    <div class="checklist" id="checklist">
+      <!-- จะถูก render จาก JS -->
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <p id="progressText">0 / 0 รายการ</p>
+  </div>
+
+  <!-- ===== CHATBOT BUBBLE ===== -->
+  <div class="chat-bubble" id="chatBubble" onclick="toggleChat()">💬</div>
+
+  <div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+      🤖 EA Assistant
+      <span onclick="toggleChat()" style="cursor:pointer; float:right;">✕</span>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg bot">สวัสดี! ผมT-lekถามเรื่อง EA ได้เลยนะครับ 😊</div>
+    </div>
+    <div class="chat-input-wrap">
+      <input type="text" id="userInput" placeholder="พิมพ์คำถาม..." 
+             onkeydown="if(event.key==='Enter') sendMessage()" />
+      <button onclick="sendMessage()">ส่ง</button>
+    </div>
+  </div>
+
+  <script src="data/checklist.js"></script>
+  <script src="chatbot.js"></script>
+</body>
+</html>
