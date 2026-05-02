@@ -1,23 +1,31 @@
 // ===== GOOGLE SHEET API =====
 const SHEET_API = 'https://sheetdb.io/api/v1/rnzgcs6kgmmoz';
 let QA_DATA = [];
+let isLoading = false;
 
 async function loadQAFromSheet() {
+  if (isLoading || QA_DATA.length > 0) return; // ป้องกันโหลดซ้ำ
+  isLoading = true;
   try {
     const res = await fetch(SHEET_API);
+    if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
     const data = await res.json();
     QA_DATA = data.map(row => ({
-      keywords: [row.keyword.toLowerCase()],
+      keywords: row.keyword.toLowerCase().split(',').map(k => k.trim()), // รองรับหลาย keyword
       answer: row.answer
     }));
+    console.log(`✅ โหลด QA สำเร็จ ${QA_DATA.length} รายการ`);
   } catch (e) {
-    console.error('โหลดข้อมูลไม่ได้:', e);
+    console.error('❌ โหลดข้อมูลไม่ได้:', e);
+  } finally {
+    isLoading = false;
   }
 }
 
 // ===== RENDER CHECKLIST =====
 function renderChecklist() {
   const container = document.getElementById('checklist');
+  if (!container) return;
   CHECKLIST_ITEMS.forEach(item => {
     const div = document.createElement('div');
     div.className = 'checklist-item';
@@ -35,6 +43,7 @@ function renderChecklist() {
 function toggleItem(id) {
   const div = document.getElementById(`item-${id}`);
   const chk = document.getElementById(`chk-${id}`);
+  if (!div || !chk) return;
   div.classList.toggle('done', chk.checked);
   updateProgress();
 }
@@ -42,7 +51,7 @@ function toggleItem(id) {
 function updateProgress() {
   const total = CHECKLIST_ITEMS.length;
   const checked = document.querySelectorAll('.checklist input:checked').length;
-  const pct = total ? (checked / total * 100) : 0;
+  const pct = total ? Math.round(checked / total * 100) : 0;
   document.getElementById('progressBar').style.width = pct + '%';
   document.getElementById('progressText').textContent = `${checked} / ${total} รายการ`;
 }
@@ -60,13 +69,37 @@ async function sendMessage() {
 
   appendMessage(text, 'user');
   input.value = '';
+  input.disabled = true; // ป้องกันส่งซ้ำขณะรอ
+
+  // แสดง typing indicator
+  const typingId = showTyping();
 
   if (QA_DATA.length === 0) await loadQAFromSheet();
 
   setTimeout(() => {
+    removeTyping(typingId);
     const reply = getReply(text);
     appendMessage(reply, 'bot');
-  }, 400);
+    input.disabled = false;
+    input.focus();
+  }, 600);
+}
+
+function showTyping() {
+  const box = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  const id = 'typing-' + Date.now();
+  div.className = 'msg bot typing';
+  div.id = id;
+  div.innerHTML = '<span>.</span><span>.</span><span>.</span>';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return id;
+}
+
+function removeTyping(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
 }
 
 function appendMessage(text, who) {
@@ -98,6 +131,19 @@ function getReply(text) {
   }
   return "ขอโทษนะครับ ยังไม่มีข้อมูลตรงนี้ ลองถามเรื่อง EA, TOGAF, หรือการเตรียมสอบได้เลยครับ 😊";
 }
+
+// รองรับกด Enter ส่งข้อความ
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('userInput');
+  if (input) {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  }
+});
 
 // ===== INIT =====
 renderChecklist();
