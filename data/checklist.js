@@ -1,4 +1,4 @@
-// ข้อมูล Checklist — แก้ตรงนี้ตามเนื้อหา EA จริง
+// ===== CHECKLIST DATA =====
 const CHECKLIST_ITEMS = [
   { id: 1, text: "เนื้อหา Enterprise Architecture Overview" },
   { id: 2, text: "Technical Review 1/3" },
@@ -7,15 +7,15 @@ const CHECKLIST_ITEMS = [
   { id: 5, text: "CIS/ TOGAF / OWASP คือ ?" },
 ];
 
-// ข้อมูล Q&A สำหรับ Chatbot
-const QA_DATA = [
+// ===== QA DATA (Fallback กรณี Sheet โหลดไม่ได้) =====
+const QA_FALLBACK = [
   {
-    keywords: ["ea", "enterprise architecture", "คืออะไร","กรอกยังไง","ใส่อะไร","Propose","Phase","owner","Catalogue","Type"],
-    answer: "Enterprise Architecture (EA) **Propose Request**:คุณต้องการขออนุมัติ/แจ้งเพื่อทราบ\n\n **Project Catalague:โครงการใหม่ หรือ POC หรือ Enhance \n **Project Owner:ใครเป็นเจ้าของโครงการ \n **Phase:พึ่งเริ่มหรือกำลัง Design หรือ จะ GoLive "
+    keywords: ["ea", "enterprise architecture", "คืออะไร", "กรอกยังไง", "ใส่อะไร", "propose", "phase", "owner", "catalogue", "type"],
+    answer: "Enterprise Architecture (EA)\n\n**Propose Request:** คุณต้องการขออนุมัติ/แจ้งเพื่อทราบ\n**Project Catalogue:** โครงการใหม่ หรือ POC หรือ Enhance\n**Project Owner:** ใครเป็นเจ้าของโครงการ\n**Phase:** พึ่งเริ่มหรือกำลัง Design หรือ จะ GoLive"
   },
   {
     keywords: ["server location", "server", "sv"],
-    answer: "Server Location จะมีให้เลือก 2 Type ได้แก่ \n\n *OnPremise* จะอยุ่ RO \n  *On-Cloud จะมี AWS และ Azure"
+    answer: "Server Location จะมีให้เลือก 2 Type ได้แก่\n\n**OnPremise:** จะอยู่ RO\n**On-Cloud:** จะมี AWS และ Azure"
   },
   {
     keywords: ["togaf", "โทแกฟ"],
@@ -23,7 +23,7 @@ const QA_DATA = [
   },
   {
     keywords: ["สอบ", "ข้อสอบ", "เตรียม"],
-    answer: "สำหรับการเตรียมสอบ EA แนะนำให้: 1) อ่าน framework หลัก 2) ทำข้อสอบเก่า 3) ทำ checklist ให้ครบทุกข้อครับ"
+    answer: "สำหรับการเตรียมสอบ EA แนะนำให้:\n1) อ่าน framework หลัก\n2) ทำข้อสอบเก่า\n3) ทำ checklist ให้ครบทุกข้อครับ"
   },
   {
     keywords: ["zachman"],
