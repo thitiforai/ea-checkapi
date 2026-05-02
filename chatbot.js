@@ -1,3 +1,20 @@
+// ===== GOOGLE SHEET API =====
+const SHEET_API = 'https://sheetdb.io/api/v1/rnzgcs6kgmmoz';
+let QA_DATA = [];
+
+async function loadQAFromSheet() {
+  try {
+    const res = await fetch(SHEET_API);
+    const data = await res.json();
+    QA_DATA = data.map(row => ({
+      keywords: [row.keyword.toLowerCase()],
+      answer: row.answer
+    }));
+  } catch (e) {
+    console.error('โหลดข้อมูลไม่ได้:', e);
+  }
+}
+
 // ===== RENDER CHECKLIST =====
 function renderChecklist() {
   const container = document.getElementById('checklist');
@@ -36,7 +53,7 @@ function toggleChat() {
   win.classList.toggle('open');
 }
 
-function sendMessage() {
+async function sendMessage() {
   const input = document.getElementById('userInput');
   const text = input.value.trim();
   if (!text) return;
@@ -44,20 +61,20 @@ function sendMessage() {
   appendMessage(text, 'user');
   input.value = '';
 
+  if (QA_DATA.length === 0) await loadQAFromSheet();
+
   setTimeout(() => {
     const reply = getReply(text);
     appendMessage(reply, 'bot');
   }, 400);
 }
 
-// ✅ ใหม่
 function appendMessage(text, who) {
   const box = document.getElementById('chatMessages');
   const div = document.createElement('div');
   div.className = `msg ${who}`;
 
   if (who === 'bot') {
-    // แปลง \n เป็น <br> และ **text** เป็น <strong>
     div.innerHTML = text
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
@@ -65,7 +82,7 @@ function appendMessage(text, who) {
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\n/g, '<br>');
   } else {
-    div.textContent = text; // user message ใช้ textContent ปกติ (ปลอดภัย)
+    div.textContent = text;
   }
 
   box.appendChild(div);
@@ -84,3 +101,4 @@ function getReply(text) {
 
 // ===== INIT =====
 renderChecklist();
+loadQAFromSheet();
