@@ -2,10 +2,14 @@
 const SHEET_API = 'https://sheetdb.io/api/v1/rnzgcs6kgmmoz';
 let QA_DATA = []; // ไม่ประกาศซ้ำใน data.js แล้ว
 let isLoading = false;
+let lastLoadedAt = null; // ✅ เพิ่มบรรทัดนี้
 
 async function loadQAFromSheet() {
-  if (isLoading || QA_DATA.length > 0) return;
-  isLoading = true;
+  const SYNC_INTERVAL = 90 * 60 * 1000; // 90 นาที (ms)
+  const now = Date.now();
+  // ✅ แก้บรรทัดนี้ — โหลดซ้ำถ้าเกิน 90 นาที หรือยังไม่เคยโหลด
+  if (isLoading || (QA_DATA.length > 0 && lastLoadedAt && now - lastLoadedAt < SYNC_INTERVAL)) return;
+  isLoading = true; 
   try {
     const res = await fetch(SHEET_API);
     if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
@@ -14,10 +18,11 @@ async function loadQAFromSheet() {
       keywords: row.keyword.toLowerCase().split(',').map(k => k.trim()),
       answer: row.answer
     }));
-    console.log(`✅ โหลด QA จาก Sheet สำเร็จ ${QA_DATA.length} รายการ`);
+    lastLoadedAt = Date.now(); // ✅ เพิ่มบรรทัดนี้
+    console.log(`✅ โหลด QA สำเร็จ ${QA_DATA.length} รายการ | ${new Date().toLocaleTimeString()}`);
   } catch (e) {
     console.warn('⚠️ โหลด Sheet ไม่ได้ ใช้ Fallback แทน:', e);
-    QA_DATA = QA_FALLBACK; // ใช้ข้อมูลสำรองแทน
+    QA_DATA = QA_FALLBACK;
   } finally {
     isLoading = false;
   }
@@ -149,3 +154,4 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===== INIT =====
 renderChecklist();
 loadQAFromSheet();
+setInterval(loadQAFromSheet, 90 * 60 * 1000); // ✅ เพิ่มบรรทัดนี้ — Sync ทุก 90 นาที
