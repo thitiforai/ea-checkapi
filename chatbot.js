@@ -1,22 +1,23 @@
 // ===== GOOGLE SHEET API =====
 const SHEET_API = 'https://sheetdb.io/api/v1/rnzgcs6kgmmoz';
-let QA_DATA = [];
+let QA_DATA = []; // ไม่ประกาศซ้ำใน data.js แล้ว
 let isLoading = false;
 
 async function loadQAFromSheet() {
-  if (isLoading || QA_DATA.length > 0) return; // ป้องกันโหลดซ้ำ
+  if (isLoading || QA_DATA.length > 0) return;
   isLoading = true;
   try {
     const res = await fetch(SHEET_API);
     if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
     const data = await res.json();
     QA_DATA = data.map(row => ({
-      keywords: row.keyword.toLowerCase().split(',').map(k => k.trim()), // รองรับหลาย keyword
+      keywords: row.keyword.toLowerCase().split(',').map(k => k.trim()),
       answer: row.answer
     }));
-    console.log(`✅ โหลด QA สำเร็จ ${QA_DATA.length} รายการ`);
+    console.log(`✅ โหลด QA จาก Sheet สำเร็จ ${QA_DATA.length} รายการ`);
   } catch (e) {
-    console.error('❌ โหลดข้อมูลไม่ได้:', e);
+    console.warn('⚠️ โหลด Sheet ไม่ได้ ใช้ Fallback แทน:', e);
+    QA_DATA = QA_FALLBACK; // ใช้ข้อมูลสำรองแทน
   } finally {
     isLoading = false;
   }
@@ -59,6 +60,7 @@ function updateProgress() {
 // ===== CHATBOT =====
 function toggleChat() {
   const win = document.getElementById('chatWindow');
+  if (!win) return;
   win.classList.toggle('open');
 }
 
@@ -69,9 +71,8 @@ async function sendMessage() {
 
   appendMessage(text, 'user');
   input.value = '';
-  input.disabled = true; // ป้องกันส่งซ้ำขณะรอ
+  input.disabled = true;
 
-  // แสดง typing indicator
   const typingId = showTyping();
 
   if (QA_DATA.length === 0) await loadQAFromSheet();
