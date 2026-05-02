@@ -5,7 +5,7 @@ let isLoading = false;
 let lastLoadedAt = null; // ✅ เพิ่มบรรทัดนี้
 
 async function loadQAFromSheet() {
-  const SYNC_INTERVAL = 90 * 60 * 1000; // 90 นาที (ms)
+  const SYNC_INTERVAL = 1800 * 60 * 1000; // 90 นาที (ms)
   const now = Date.now();
   // ✅ แก้บรรทัดนี้ — โหลดซ้ำถ้าเกิน 90 นาที หรือยังไม่เคยโหลด
   if (isLoading || (QA_DATA.length > 0 && lastLoadedAt && now - lastLoadedAt < SYNC_INTERVAL)) return;
